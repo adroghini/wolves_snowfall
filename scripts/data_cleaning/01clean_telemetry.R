@@ -2,7 +2,6 @@
 setwd('C:/Users/adroghini/Documents/wolves_snowfall/')
 
 # Load required packages
-library(tidyr)
 library(dplyr)
 library(data.table)
 
