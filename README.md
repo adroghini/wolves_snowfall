@@ -1,7 +1,7 @@
 # Effect of snowfall on wolf movements
 This project investigated the effect of snowfall events on the movement behaviour of grey wolves (*Canis lupus*). We quantified wolf movement using GPS telemetry data and identified snowfall events using remote cameras. The study took place in northeastern Alberta, Canada, near the town of Fort McMurray over the course of two winters (Jan. to Mar. 2013 and 2014). 
 
-This study is currently under review: A. Droghini, and S. Boutin. 2018. The calm during the storm: Snowfall events decrease the movement of grey wolves (Canis lupus). *Under review*.
+This study is currently under review: A. Droghini, and S. Boutin. 2018. The calm during the storm: Snowfall events decrease the movement of grey wolves (*Canis lupus*). In review.
 
 # Software requirements
 - R (https://www.r-project.org/)
