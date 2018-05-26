@@ -1,2 +1,2 @@
-# wolves_snowfall
-Investigating how grey wolf movements are affected by snowfall in Canada's boreal north.
+# The calm during the storm: Snowfall events decrease the movement of grey wolves (Canis lupus)
+Amanda Droghini, Stan Boutin
