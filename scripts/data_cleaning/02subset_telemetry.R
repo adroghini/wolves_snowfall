@@ -1,27 +1,3 @@
-# Set working directory
-###################################
-##NEED TO CHANGE THIS -- NO LONGER CORRECT
-setwd('/Users/amanda_droghini/Desktop/University of Alberta/
-      THESIS/Analyses/chapter2/temp/')
-# Load required packages
-library(maptools)
-library(rgdal)
-
-# Load telemetry data
-telem<-read.csv("data/AWSep2014.csv",header=T)
-head(telem)
-
-# Dealing with date/time
-## Set timezone to avoid DST confusion
-Sys.setenv(TZ="Etc/GMT-7")
-
-## Specifying date/time as.POSIX
-####ONE OF THESE WILL WORK - CHECK FORMAT
-####DT_AD WILL NOT EXIST IN ORIGINAL SHAPEFILE
-#telem$DT_AD<- strptime(telem$DT_AD, format="%Y-%m-%d %H:%M",tz="Etc/GMT-7")
-#telem$DT_AD <- as.POSIXct(telem$DT_AD)
-telem$DT <- as.POSIXct(strptime(telem$DateTimeSt, format="%m/%d/%Y %H:%M:%S",tz="Etc/GMT-7"))
-
 # Subset
 ## Remote camera data used for analysis were only available for winter (Jan. - Mar.) 2013 and 2014
 
@@ -78,57 +54,11 @@ merge<-merge[!(merge$Device_ID==33674 & merge$LINENO==7743),]
 
 
 
+test <- telem %>% 
+  group_by(Device) %>% 
+  mutate(UID = row_number())
 
-#####THIS WAS FROM MVMT-METRICS scripts
-###COL NAMES WILL BE ALL WRONG
-##may be worth just rewriting on your own
-###########################
-###########################
-#######CLEAN UP TIME#######
-###########################
-###########################
-##clean up merge file first
-##for some reason?? there are 13 empty rows?? need to delete
-merge<-merge[!is.na(merge$Latitude),]
-##delete Collartype as differentiation is between Vectronic & Lotek (have this information
-##in winter collar schedule - basically only Vectronic collars are #13790-95) - COL. 25
-##check if column Device_ID and Device are identical
-A<-merge$Device_ID
-B<-merge$Device
-C<-A %in% B
-table(C)["TRUE"] == nrow(merge)
-rm(A,B,C)
-##yes both columns identical, delete Device column - COL.48
-##double check you are getting the right numbers before deleting
-##delete Use columns - all 1s (was for Eric's stuff) - COL. 57
-##delete UTC_Time & LMT_Time - as text never converted to actual date - COLS. 27, 29
-##idem for time_local - COL.12
-##delete WSCount - Eric has no idea what it is - COL. 55
-##Origin file is either Iridium or blank - can delete - COL. 30
-##i'm going to delete all date/time columns EXCEPT FOR DateTimeSt, DT, and the sep. cols.
-##for time & date
-##deleting: Date_Time_,Date_Time1,date_local,UTC_Date,LMT_Date,DateTime, SCTS_Time & Date
-##deleting Mort_Statu columns as levels are blank or "normal", got rid of deaths - COL. 36
-##delete Activity - all 0s? COL. 37
-##columns "X" and "POINT_X" (idem for Y) are, for all extensive purposes, identical...
-##when different, it is by at most 0.001... going to delete X,Y - COLS. 2 & 3
-##from CMC data: columns WindChillFlag, Weather are strictly NA - COL.81,82
-##idem VisibFlag (75), HmdxFlag (79), RelHumFlag (69), StnPress (76)
-##idem Quality (63), TempFlag (65), DewFlag (67), Visib (74), Hmdx (78)
-colnames(merge)[c(25,48,57,27,29,12,55,30,6,7,8,26,28,47,36,37,2,3,81,82,75,79,69,76,
-                  63,65,67,74,78,32,31)]
-merge2<-merge[,-c(25,48,57,27,29,12,55,30,6,7,8,26,28,47,36,37,2,3,81,82,75,79,69,76,
-                  63,65,67,74,78,32,31)]
-##full file became "merge-allcols.csv" in old data folder
-rm(merge)
-merge<-merge2
-rm(merge2)
-merge<-merge[order(merge[,"Device_ID"],merge[,"DT"]),]
-##add ind. row ID based on this order
-merge$RowID<-1:nrow(merge)
-
-
-
+######MOVEMENT METRIC STUFF
 # Calculate fix rate
 # i.e. time difference between each consecutive fix
 
@@ -230,8 +160,8 @@ print(Sys.time())
 W2014.R2$DTdiff<-foreach(i = 1:nrow(W2014.R2), .combine = rbind) %dopar% {
   if (W2014.R2$Device_ID[i]==W2014.R2$Dev1[i]){
     difftime(W2014.R2$DT[i],W2014.R2$DT1[i],units="mins")
-}
-else{NA}}
+  }
+  else{NA}}
 print(Sys.time())
 stopCluster(cl)
 
@@ -297,3 +227,5 @@ W2014.R<-rbind(W2014.R1,W2014.R2)
 rm(W2014.R1,W2014.R2,cl,NumberOfCluster,xdiff,ydiff)
 W2014.R$speed<-as.numeric(W2014.R$speed)
 W2014.R1<-subset(W2014.R,!is.na(speed))
+
+
