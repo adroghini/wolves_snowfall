@@ -1,0 +1,5 @@
+# ignore all files in data/ directory
+# data files are not ready to be shared as we are still working on analyses related to this project
+# for questions or collaborations, please contact Amanda Droghini at droghini@ualberta.ca
+
+data/
