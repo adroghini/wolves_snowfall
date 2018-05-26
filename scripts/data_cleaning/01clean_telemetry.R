@@ -3,7 +3,6 @@ setwd('C:/Users/adroghini/Documents/wolves_snowfall/')
 
 # Load required packages
 library(dplyr)
-library(data.table)
 
 # Load telemetry data
 # This file was previously cleaned and modified by colleague Eric Neilson
