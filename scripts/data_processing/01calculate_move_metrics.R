@@ -1,0 +1,124 @@
+# Load required libraries
+library(plyr)
+library(dplyr)
+library(mixtools)
+
+# Calculate step length
+# Thanks to Elie Gurarie for the code
+# http://faculty.washington.edu/eliezg/teaching/AniMove2014/Basics/BasicsPartI_Document.html
+# Note: Speed is not calculated if FixRate > 35
+# This isn't entirely true because we "introduced" some longer fix rates when we thinned our data from 10 to 30 mins.
+tel.fixr30 <- tel.fixr30 %>% 
+  arrange(Device,UID) %>%
+  group_by(Device) %>%
+  mutate(z=Easting+1i*Northing, 
+         steps=c(NA,diff(z)), #NA for 1st step length
+         steplength_m=ifelse(is.na(FixRate.NA), NA, Mod(steps))) %>%
+  select(-c(z,steps))
+
+# Step length is in meters
+
+# Create backup file in case something gets overwritten
+# backup <- tel.fixr30
+
+# Recalculate fix rate now that 10 min data have been subset
+tel.fixr30$NewFixRate <- tel.fixr30$FixRate.NA
+
+for (i in 2:nrow(tel.fixr30)) {
+  if (tel.fixr30$Device[i] == tel.fixr30$Device[i - 1]) {
+    if(is.na(tel.fixr30$FixRate.NA[i])){
+      tel.fixr30$NewFixRate[i]<-tel.fixr30$FixRate.NA[i]
+    }
+    else {
+      tel.fixr30$NewFixRate[i] <-
+      difftime(tel.fixr30$DateTime[i], tel.fixr30$DateTime[i - 1], units = "mins")
+    }
+  }
+}
+
+rm(i)
+
+# Check what happened to the NAs
+# View(subset(tel.fixr30,is.na(FixRate.NA)))
+
+# Remove superfluous FixRate column
+tel.fixr30 <- tel.fixr30 %>% 
+  select(-FixRate)
+
+
+# Thinning script isn't perfect at the tail ends of the sequences we generated
+View(subset(tel.fixr30,NewFixRate>35))
+
+# It also runs into problems when encountering big jumps in fixes
+# Replace these with NAs
+
+# UID = 4274 from Device = 33676. Last fix rate was at 16:10 and the one just before was at 16:00
+tel.fixr30$NewFixRate[tel.fixr30$Device==33676 & tel.fixr30$UID==4274]<-NA
+tel.fixr30$steplength_m[tel.fixr30$Device==33676 & tel.fixr30$UID==4274]<-NA
+
+# UID = 2472 from Device = 32261
+# Fixes jump from 15:00 and 15:10 to 23:00
+tel.fixr30$NewFixRate[tel.fixr30$Device==32261 & tel.fixr30$UID==2472]<-NA
+tel.fixr30$steplength_m[tel.fixr30$Device==32261 & tel.fixr30$UID==2472]<-NA
+
+# Summarize results
+tel.fixr30 %>%
+  filter(!is.na(NewFixRate)) %>%
+  ungroup(Device) %>%
+  summarize(
+    mean.fix = mean(NewFixRate),
+    max.fix = max(NewFixRate),
+    min.fix = min(NewFixRate),
+    sd.fix = sd(NewFixRate)
+  )
+
+# Calculate speed
+tel.fixr30 <- tel.fixr30 %>% 
+  mutate(speed = steplength_m/NewFixRate) # in meters per minute
+
+# Calculate resting/traveling breakpoint
+# Thanks to Melanie Dickie for the idea
+segments<-data.frame(log(0.01+tel.fixr30$speed)) ##add constant or else 0 = -INF
+colnames(segments)[1]<-"log.speed"
+
+# Remove NAs for function to work
+segments <- segments %>% 
+  filter(!is.na(log.speed))
+
+breakpoint_model <- normalmixEM(segments$log.speed, k=2, epsilon = 1e-03, fast=TRUE)
+range(segments$log.speed) # for plotting parameters
+
+# Plot and use locator() tool to estimate breakpoint
+
+# Save plot for Supplementary Information
+png("figures/S2_speed_breakpoint.png",res=800,units="cm",height=16,width=20)
+plot.new()
+plot.window(xlim=c(-5,5.5), ylim=c(0,0.3))
+plot(breakpoint_model,which=2,add=TRUE)
+box(); axis(1,at = seq(-5, 5, by = 1), ); axis(2); title(xlab="Log of speed (m/min)", ylab="Density")
+abline(v=0.5,lty=2,lwd=2,col="black")
+dev.off()
+
+# Inverse log
+# Antilog function from: http://r.789695.n4.nabble.com/Searching-for-antilog-function-td4721348.html
+antilog <- function(lx, base) {
+  lbx <- lx / log(exp(1), base = base)
+  result <- exp(lbx)
+  result
+} 
+
+breakpoint<-antilog(0.5,10)
+
+# Categorize behaviour based on speed
+tel.fixr30$Behavior <- NA
+tel.fixr30$Behavior[tel.fixr30$speed<breakpoint] <- 0 # resting
+tel.fixr30$Behavior[tel.fixr30$speed>=breakpoint] <- 1 # travelling
+
+rm(antilog, breakpoint,segments,breakpoint_model)
+
+# Calculate daily distance travelled
+## You can do this only after you define a new camera day
+daily.dist <- tel.fixr30 %>% 
+  group_by(Device,Date) %>% 
+  summarize(distance = sum(steplength_m/1000))
+

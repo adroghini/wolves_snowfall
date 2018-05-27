@@ -34,6 +34,7 @@ cols.to.delete <- c("FID","number","Device_ID","Date_Time_","Date_Time1","date_L
                     "F63","DateTime","LINENO","DTdiff","FixRate","ThreeHR","StudyArea","Season","WSCount","In99Sel",
                     "Use")
 
+
 #Specify new column order
 cols.order <- c("Device","Latitude","Longitude","POINT_X","POINT_Y","DateTimeSt","year_local",
                "Month","Day","Hour","Minute","Second","Pack")
@@ -50,9 +51,13 @@ telem$Device <- as.factor(telem$Device)
 telem$Pack <- as.factor(telem$Pack)
 telem$Year <- as.integer(telem$Year)
 
+# Create Date only column
+telem$Date <- paste (telem$Year, telem$Month, telem$Day, sep = "-")
+
 # Date/Time column
-#Sys.setenv(TZ="Etc/GMT-7")
+Sys.setenv(TZ="Etc/GMT-7") # because POSIXt is a nightmare
 telem$DateTime <- as.POSIXct(strptime(telem$DateTime, format="%m/%d/%Y %H:%M:%S",tz="Etc/GMT-7"))
+telem$Date <- as.Date(telem$Date, format="%Y-%m-%d",tz="Etc/GMT-7")
 
 # Arrange by Collar ID and by DateTime for easy calculation of movement metrics
 telem <- arrange(telem, Device, DateTime)
