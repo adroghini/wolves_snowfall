@@ -8,7 +8,7 @@ This study is currently under review: Droghini, A., and S. Boutin. 2018. The cal
 - RStudio version 1.1.453 (https://www.rstudio.com/)
 
 ## Package requirements
-The following packages must be installed for scripts to run properly: *plyr, dplyr, data.table, mixtools, suncalc*
+The following packages must be installed for scripts to run properly: *plyr, dplyr, data.table, mixtools, suncalc, tidyr*
 
 # File structure
 The following folder structure must be in place for the scripts to run properly:

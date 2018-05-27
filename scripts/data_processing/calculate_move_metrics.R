@@ -6,8 +6,7 @@ library(mixtools)
 # Calculate step length
 # Thanks to Elie Gurarie for the code
 # http://faculty.washington.edu/eliezg/teaching/AniMove2014/Basics/BasicsPartI_Document.html
-# Note: Speed is not calculated if FixRate > 35
-# This isn't entirely true because we "introduced" some longer fix rates when we thinned our data from 10 to 30 mins.
+# Note: Speed is not calculated if FixRate > 59
 tel.fixr30 <- tel.fixr30 %>% 
   arrange(Device,UID) %>%
   group_by(Device) %>%
