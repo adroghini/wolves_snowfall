@@ -8,3 +8,5 @@ data/
 *.Rproj
 .Rproj.user
 scripts/analyses
+.RData
+.Rhistory
