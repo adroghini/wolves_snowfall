@@ -88,13 +88,20 @@ random_dates <- telem_snow %>%
   filter(!(CamDate %in% snowfall_dates$category_date)) %>% 
   sample_n(3,replace = FALSE) %>% 
   select(Device,CamDate)
-# 6 observations * 17 wolves = 102 random dates
+# 3 observations * 17 wolves = 51 random dates
 
 # Subset telemetry date to only include these random dates
-random_telem <- telem_snow %>% 
-  group_by(Device) %>%   
-  filter(CamDate %in% random_dates$CamDate) 
-         
+
+# Add unique ID for easy filtering
+random_dates$key <- paste(random_dates$Device,random_dates$CamDate,sep="_")
+test <- telem_snow %>% 
+  mutate(key = paste(Device,CamDate,sep="_"))
+
+random_telem <- test %>% 
+  filter(key %in% random_dates$key) %>% 
+  select(-key)
+
+rm(test)
 random_telem$snowfall_category = "control"
 random_dates$snowfall_category = "control"
 # Check
