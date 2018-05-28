@@ -77,7 +77,12 @@ tel.fixr30 <- tel.fixr30 %>%
 
 # Calculate resting/traveling breakpoint
 # Thanks to Melanie Dickie for the idea
-segments<-data.frame(log(0.01+tel.fixr30$speed)) ##add constant or else 0 = -INF
+
+# segments<-data.frame(log(tel.fixr30$speed+0.01)))
+# log base for R is exp(1)
+# plot using base 10 - addressing reviewer comments
+# re: clarification of breakpoint
+segments<-data.frame(log10(tel.fixr30$speed+0.01)) ##add constant or else 0 = -INF
 colnames(segments)[1]<-"log.speed"
 
 # Remove NAs for function to work
@@ -87,16 +92,22 @@ segments <- segments %>%
 breakpoint_model <- normalmixEM(segments$log.speed, k=2, epsilon = 1e-03, fast=TRUE)
 range(segments$log.speed) # for plotting parameters
 
-# Plot and use locator() tool to estimate breakpoint
-
+# Plot
 # Save plot for Supplementary Information
 png("figures/S2_speed_breakpoint.png",res=800,units="cm",height=16,width=20)
 plot.new()
-plot.window(xlim=c(-5,5.5), ylim=c(0,0.3))
+# plot.window(xlim=c(-5,5.5), ylim=c(0,0.3))
+plot.window(xlim=c(-2,2.32), ylim=c(0,0.7))
 plot(breakpoint_model,which=2,add=TRUE)
-box(); axis(1,at = seq(-5, 5, by = 1), ); axis(2); title(xlab="Log of speed (m/min)", ylab="Density")
-abline(v=0.5,lty=2,lwd=2,col="black")
+# box(); axis(1,at = seq(-5, 5, by = 1), ); axis(2); 
+box(); axis(1,at = seq(-2, 3, by = 0.5), ); 
+axis(2); 
+title(xlab="Log of speed (m/min)", ylab="Density")
+# abline(v=0.5,lty=2,lwd=2,col="black")
+abline(v=0.228,lty=2,lwd=2,col="black")
 dev.off()
+
+# Use locator() tool to estimate breakpoint
 
 # Inverse log
 # Antilog function from: http://r.789695.n4.nabble.com/Searching-for-antilog-function-td4721348.html
@@ -106,7 +117,8 @@ antilog <- function(lx, base) {
   result
 } 
 
-breakpoint<-antilog(0.5,10)
+# breakpoint <- antilog(0.5,exp(1))
+breakpoint <- antilog(0.228,10)
 
 # Categorize behaviour based on speed
 tel.fixr30$Behavior <- NA
