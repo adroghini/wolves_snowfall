@@ -71,8 +71,8 @@ snowfall_events <- snowfall_events %>%
   dplyr::arrange(Device,category_date)
 
 # Create controls
-# Controls are six random dates that do not belong to any snowfall_category
-# N = 6 to balance observations (six snowfall categories)
+# Controls are three random dates that do not belong to any snowfall_category
+# N = 3 to balance number of observations
 
 # Create list of dates that *cannot* be used for controls
 snowfall_dates <- snowfall_events %>% 
@@ -81,16 +81,22 @@ snowfall_dates <- snowfall_events %>%
 # Returns fewer rows than snowfall_events because of 2013-03-21 / 03-22 
 rm(snowfall_events)
 
-random_telem <- telem_snow %>% 
+random_dates <- telem_snow %>% 
   filter(!is.na(speed)) %>% 
   filter(!is.na(SnowAccum)) %>% 
   group_by(Device) %>% 
   filter(!(CamDate %in% snowfall_dates$category_date)) %>% 
-  sample_n(6,replace = FALSE)
-
-random_telem$snowfall_category = "control"
-
+  sample_n(3,replace = FALSE) %>% 
+  select(Device,CamDate)
 # 6 observations * 17 wolves = 102 random dates
+
+# Subset telemetry date to only include these random dates
+random_telem <- telem_snow %>% 
+  group_by(Device) %>%   
+  filter(CamDate %in% random_dates$CamDate) 
+         
+random_telem$snowfall_category = "control"
+random_dates$snowfall_category = "control"
 # Check
 # max(random_telem$SnowAccum) # Should not be >= 5 cm
 
@@ -99,7 +105,7 @@ random_telem$snowfall_category = "control"
 
 # Left join by Device and category_date = CamDate
 
-# Remote repeating columns
+# Remove repeating columns
 snowfall_dates <- snowfall_dates %>% 
   select(-c(Camera,SnowAccum,SnowDepth))
 
@@ -111,12 +117,13 @@ snowfall_telem <- plyr::rbind.fill(snowfall_telem,random_telem)
 unique(snowfall_telem$snowfall_category)
 
 # Export category dates for reference
-random_telem <- random_telem %>% 
+random_dates <- random_dates %>% 
   rename(category_date = CamDate) %>% 
   select(Device,snowfall_category,category_date)
-snowfall_dates <- plyr::rbind.fill(snowfall_dates,random_telem)
+
+snowfall_dates <- plyr::rbind.fill(snowfall_dates,random_dates)
 
 write.csv(snowfall_dates,'data/outputs/snowfall_category_dates.csv',
           row.names=F)
 
-rm(random_telem,snowfall_dates)
+rm(random_telem,snowfall_dates,random_dates)

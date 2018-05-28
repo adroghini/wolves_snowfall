@@ -115,9 +115,3 @@ tel.fixr30$Behavior[tel.fixr30$speed>=breakpoint] <- 1 # travelling
 
 rm(antilog, breakpoint,segments,breakpoint_model)
 
-# Calculate daily distance travelled
-## You can do this only after you define a new camera day
-daily.dist <- tel.fixr30 %>% 
-  group_by(Device,Date) %>% 
-  summarize(distance = sum(steplength_m/1000))
-
