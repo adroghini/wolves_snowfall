@@ -5,7 +5,7 @@ setwd('C:/Users/adroghini/Documents/wolves_snowfall/')
 library(dplyr)
 
 # Load telemetry data
-# This file was previously cleaned and modified by colleague Eric Neilson
+# Thanks to Antje Bohm and Eric Neilson for initial data clean-up
 telem <- read.csv("data/all_wolves_telem.csv",header=T,stringsAsFactors = FALSE)
 head(telem)
 
@@ -56,7 +56,7 @@ telem$Date <- paste (telem$Year, telem$Month, telem$Day, sep = "-")
 
 # Format Date/Time column
 Sys.setenv(TZ="Etc/GMT-7") # because POSIXt is a nightmare
-# Note: This is a DST-free timezone 
+# Note: This is a DST-free timezone
 # Pre-processing of telemetry data applied same convention
 # To avoid 1 hour DST jump in March
 telem$DateTime <- as.POSIXct(strptime(telem$DateTime, format="%m/%d/%Y %H:%M:%S",tz="Etc/GMT-7"))
