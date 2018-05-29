@@ -35,8 +35,8 @@ cams.depth <- arrange(cams.depth, Camera,DateTime)
 # Delete extra columns
 # For each camera, create RowID that goes from 1:length of observation
 cams.depth <- cams.depth %>% 
-  select(-c(ID,Image.Name,Period,Image.Path,Temp,ImagePath,
-            Moon.Phase,UID)) %>% 
+  dplyr::select(-c(Image.Name,Period,Image.Path,Temp,ImagePath,
+            Moon.Phase)) %>% 
   mutate(RowID = 1:length(DateTime))
 
 # Subset to only include cameras in deploy

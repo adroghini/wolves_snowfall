@@ -12,7 +12,7 @@ snowfall_events <- telem_snow %>%
   filter(SnowAccum >= 5) %>% 
   # distinct(Camera,CamDate,.keep_all=TRUE) %>% # 35 unique snowstorms
   distinct(Device,CamDate,.keep_all=TRUE) %>% # 57 total observations
-  select(Camera,CamDate,SnowAccum,SnowDepth,Device) %>% 
+  dplyr::select(Camera,CamDate,SnowAccum,SnowDepth,Device) %>% 
   dplyr::arrange(CamDate)
 
 length(unique(snowfall_events$Device)) # Across 17 collars
@@ -23,7 +23,7 @@ summary <- snowfall_events %>%
   group_by(Device) %>% 
   summarize(no_of_snowfall = length(unique(CamDate)))
 mean(summary$no_of_snowfall) # x = 3.35 snowfall events per wolf 
-sd(summary$no_of_snowfall) # sd = 2.17
+sd(summary$no_of_snowfall) # sd = 2.26
 range(summary$no_of_snowfall) # range = 1 to 7
 rm(summary)
 
@@ -87,7 +87,7 @@ random_dates <- telem_snow %>%
   group_by(Device) %>% 
   filter(!(CamDate %in% snowfall_dates$category_date)) %>% 
   sample_n(3,replace = FALSE) %>% 
-  select(Device,CamDate)
+  dplyr::select(Device,CamDate)
 # 3 observations * 17 wolves = 51 random dates
 
 # Subset telemetry date to only include these random dates
@@ -99,13 +99,14 @@ test <- telem_snow %>%
 
 random_telem <- test %>% 
   filter(key %in% random_dates$key) %>% 
-  select(-key)
+  dplyr::select(-key)
 
 rm(test)
 random_telem$snowfall_category = "control"
 random_dates$snowfall_category = "control"
+
 # Check
-# max(random_telem$SnowAccum) # Should not be >= 5 cm
+max(random_telem$SnowAccum) # Should not be >= 5 cm
 
 # Subset telem_snow to only include snowfall_dates
 # Then merge with random_telem
@@ -114,7 +115,7 @@ random_dates$snowfall_category = "control"
 
 # Remove repeating columns
 snowfall_dates <- snowfall_dates %>% 
-  select(-c(Camera,SnowAccum,SnowDepth))
+  dplyr::select(-c(Camera,SnowAccum,SnowDepth))
 
 snowfall_telem <- right_join(telem_snow,snowfall_dates,
                             by = c("Device" = "Device",
@@ -126,7 +127,7 @@ unique(snowfall_telem$snowfall_category)
 # Export category dates for reference
 random_dates <- random_dates %>% 
   rename(category_date = CamDate) %>% 
-  select(Device,snowfall_category,category_date)
+  dplyr::select(Device,snowfall_category,category_date)
 
 snowfall_dates <- plyr::rbind.fill(snowfall_dates,random_dates)
 

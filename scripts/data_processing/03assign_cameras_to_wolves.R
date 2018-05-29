@@ -9,21 +9,29 @@ library(dplyr)
 # January 1 <= 12:00:00
 
 # To make sure that the movement metrics we are calculating for wolves =
-# the date at which a snowfall was detected, substract 12 hours from 
-# current DateTime telemetry. The date will be equivalent to the date at 
-# which the camera detected a snowfall 
-tel.fixr30  <- tel.fixr30 %>% 
-  mutate(CamDateTime = DateTime - (12*3600)) %>% 
-  mutate(CamDate = as.Date(CamDateTime)) %>% 
-  select(-CamDateTime)
-            
+# the date at which a snowfall was detected, create new CamDate column
+# that will match the "camera day" resolution
+tel.fixr30$CamDate <- as.Date(NA)
+for (i in 1:nrow(tel.fixr30)) {
+  
+  if (tel.fixr30$Hour[i] >= 0 & tel.fixr30$Hour[i] < 12) {
+    tel.fixr30$CamDate[i] <- tel.fixr30$Date[i]
+  }   
+  # If snowfall happens at or before 12:00:00, captured same day
+  
+  else if (tel.fixr30$Hour[i] >= 12) {
+    tel.fixr30$CamDate[i] <- tel.fixr30$Date[i] + 1 
+    # If snowfall happens after 12:00:00, it will only be captured next day
+  }
+  }
+
 # For each wolf, obtain average location on any given Camera Day
 mean.position <- tel.fixr30 %>% 
   arrange(Device,UID) %>% 
   group_by(Device,CamDate) %>% 
   summarise(mean.x=mean(Easting),mean.y=mean(Northing))
 
-#write.csv(mean.position,'data/outputs/mean_position.csv',row.names=FALSE)
+# write.csv(mean.position,'data/outputs/mean_position.csv',row.names=FALSE)
 
 # Extract coordinates for cameras
 cam.locations <- cams.deploy %>% 
@@ -32,13 +40,15 @@ cam.locations <- cams.deploy %>%
 # Append coordinates of camera locations to cams.depth
 cams.depth <- cams.depth %>%
     left_join(cam.locations, by = c("Camera" = "camera")) %>%
-    select(-c(deploy.date, measure_type, measurement, sample_no))
+    dplyr::select(-c(deploy.date, measure_type, measurement, sample_no)) %>%
+  
 
 # For each daily mean position, 
 # Find cameras for which snow accumulation data are available
 # Remove NAs of snow accumulation
-test <- left_join(mean.position,cams.depth,by=c("CamDate"="Date"))
-test <- filter(test,!is.na(SnowAccum))
+test <- left_join(mean.position,cams.depth,by=c("CamDate"="Date")) %>% 
+  filter(!is.na(SnowAccum)) %>% 
+  dplyr::select(-c(Time,DateTime,RowID))
 
 # Calculate "step length" between wolf daily position (mean.x, mean.y) and
 # snow depth camera (easting, northing)
@@ -73,7 +83,7 @@ test <- test %>%
   filter(dist.from.cams==min(dist.from.cams))
 
 mean.position <- test %>% 
-  select(-c(zwolf,zcams,steps))
+  dplyr::select(-c(zwolf,zcams,steps))
 
 rm(i, test)
 

@@ -6,7 +6,7 @@ library(MuMIn)
 # Create data for Model 1: travel speed
 test_travel <- snowfall_telem %>% 
   filter(Behavior==1 & !is.na(SnowDepth)) %>% 
-  select(Device,speed, time_of_day,SnowDepth,snowfall_category)
+  dplyr::select(Device,speed, time_of_day,SnowDepth,snowfall_category)
 
 # Exploratory plots
 # Do continuous variables contain outliers
@@ -39,7 +39,6 @@ test_travel$snowfall_category <-
 
 # Apply linear model
 # Use information theoretic approach (AIC)
-
 options(na.action = "na.fail") # Prevent fitting models to different datasets
 
 # Define full model

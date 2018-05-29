@@ -18,7 +18,7 @@ gather(key = snow_condition, value = measurement,
        sn1,sn2,sn3,sn4,cn1,cn2,cn3,cn4) %>% 
   mutate(measure_type = substr(snow_condition,start=1,stop=2)) %>% 
   mutate(sample_no = substr(snow_condition,start=3,stop=3)) %>% 
-  select(-snow_condition) %>% 
+  dplyr::select(-snow_condition) %>% 
   mutate(measure_type = if_else(measure_type == "sn", "snow_depth",
                                 "sinking_depth"))
 
@@ -37,9 +37,9 @@ deploy2014$measure_type <- "snow_depth"
 
 # Clean columns and merge into a single file
 names(deploy2013)
-deploy2013 <- select(deploy2013, -c(3,6:14))
+deploy2013 <- dplyr::select(deploy2013, -c(3,6:14))
 names(deploy2014)
-deploy2014 <- select(deploy2014, -c(1,4,7:16))
+deploy2014 <- dplyr::select(deploy2014, -c(1,4,7:16))
 
 names(deploy2013)
 deploy2013 <- rename(deploy2013,camera = PlotID,deploy.date=DeployDate,
@@ -47,7 +47,7 @@ deploy2013 <- rename(deploy2013,camera = PlotID,deploy.date=DeployDate,
 deploy2013$deploy.date <- as.Date(deploy2013$deploy.date, 
                                   format="%y-%m-%d",tz="Etc/GMT-7")
 deploy2013 <- deploy2013 %>% 
-  select(camera:northing,measure_type,measurement,sample_no)
+  dplyr::select(camera:northing,measure_type,measurement,sample_no)
 
 names(deploy2014)
 deploy2014 <- rename(deploy2014,camera = CameraStation,
