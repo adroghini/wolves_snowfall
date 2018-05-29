@@ -22,5 +22,7 @@ ggplot(test,aes(x=as.factor(snowfall_order),y=mean.speed,
   theme_classic() +
   theme(legend.position="top",legend.title = element_blank(),
         panel.grid.major = element_line(colour="grey90"))
+
+
   
          

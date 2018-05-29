@@ -10,3 +10,5 @@ data/
 scripts/analyses
 .RData
 .Rhistory
+*.Rmd
+figures/drafts/travel_speed_graph.html
