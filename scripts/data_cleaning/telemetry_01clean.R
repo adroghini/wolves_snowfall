@@ -12,7 +12,7 @@ head(telem)
 # Clean up extra columns
 names(telem)
 
-# DateTimeSt column is local time 
+# DateTimeSt column is local time
 # Delete all other date/time strings
 
 # Check if day_local, month_loca, etc. columns are the same as Day, Month, Hour, Minute, Second..
@@ -40,8 +40,8 @@ cols.order <- c("Device","Latitude","Longitude","POINT_X","POINT_Y","DateTimeSt"
                "Month","Day","Hour","Minute","Second","Pack")
 
 # Drop unnecessary columns, reorder and rename
-telem  <- telem %>%  
-  select(cols.order,-cols.to.delete) %>% 
+telem  <- telem %>%
+  select(cols.order,-cols.to.delete) %>%
   rename(DateTime = DateTimeSt, Year = year_local,Easting = POINT_X, Northing = POINT_Y)
 
 rm(cols.order,cols.to.delete)
@@ -54,8 +54,11 @@ telem$Year <- as.integer(telem$Year)
 # Create Date only column
 telem$Date <- paste (telem$Year, telem$Month, telem$Day, sep = "-")
 
-# Date/Time column
+# Format Date/Time column
 Sys.setenv(TZ="Etc/GMT-7") # because POSIXt is a nightmare
+# Note: This is a DST-free timezone 
+# Pre-processing of telemetry data applied same convention
+# To avoid 1 hour DST jump in March
 telem$DateTime <- as.POSIXct(strptime(telem$DateTime, format="%m/%d/%Y %H:%M:%S",tz="Etc/GMT-7"))
 telem$Date <- as.Date(telem$Date, format="%Y-%m-%d",tz="Etc/GMT-7")
 
