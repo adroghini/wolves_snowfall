@@ -6,10 +6,8 @@
 data/
 .Rproj.user/
 *.Rproj
-.Rproj.user
 scripts/analyses
 .RData
 .Rhistory
-<<<<<<< HEAD
 *.Rmd
 figures/drafts/

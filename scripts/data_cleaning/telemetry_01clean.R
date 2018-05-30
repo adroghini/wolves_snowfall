@@ -5,7 +5,7 @@ setwd('C:/Users/adroghini/Documents/wolves_snowfall/')
 library(dplyr)
 
 # Load telemetry data
-# Thanks to Antje Bohm and Eric Neilson for initial data clean-up
+# Thanks to Kristin Cline and Eric Neilson for initial data clean-up
 telem <- read.csv("data/all_wolves_telem.csv",header=T,stringsAsFactors = FALSE)
 head(telem)
 
