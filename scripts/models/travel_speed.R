@@ -29,6 +29,7 @@ plot(test_travel$obs_no~test_travel$SnowDepth)
 # Create column for log.speed
 # Code factors for categorical variables
 test_travel$log.speed <- log10(test_travel$speed)
+test_travel$depth.exp <- (test_travel$SnowDepth)^2
 test_travel$Device <- as.factor(test_travel$Device)
 test_travel$snowfall_category <- as.factor(test_travel$snowfall_category)
 test_travel$time_of_day <- as.factor(test_travel$time_of_day)
@@ -42,8 +43,28 @@ test_travel$snowfall_category <-
 options(na.action = "na.fail") # Prevent fitting models to different datasets
 
 # Define full model
-# random slope
-full_model_travel <- lme(log.speed ~ snowfall_category + time_of_day + scale( SnowDepth), random = ~1|Device/snowfall_category, data=test_travel, method="ML")
+
+# See if random effects are warranted
+
+# Fixed effects only
+AIC(gls(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), data=test_travel, method="ML"))
+
+# Random intercept only
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 | Device, data=test_travel, method="ML"))
+
+# Random slope by time_of_day
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 + time_of_day | Device, data=test_travel, method="ML"))
+
+# Random slope by snow depth
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 + scale(SnowDepth) | Device, data=test_travel, method="ML"))
+
+# Random slope by snowfall_category does not converge
+
+# Run final global model
+full_model_travel <- lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 + time_of_day | Device, data=test_travel, method="ML")
+
+# Model summary
+summary(full_model_travel)
 
 # Check residuals
 plot(full_model_travel)

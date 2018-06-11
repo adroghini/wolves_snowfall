@@ -102,19 +102,6 @@ test <- left_join(tel.fixr30, mean.position,
 # Will need to be subset
 nrow(subset(test,is.na(SnowAccum)))
 
-# Output summary statistics
-# How far away are cameras from wolves?
-# How many cameras is linked to each wolf?
-test %>% 
-  group_by(Device) %>% 
-  filter(!is.na(SnowAccum)) %>% 
-  summarize(mean.dist = mean(dist.from.cams), 
-            no_of_cams = length(unique(Camera)))
-
-# Device ID 33674 does not have any cameras nearby
-# Closest one is 97.0 km away
-# Not sure whether to omit?
-
 # Clean up workspace
 telem_snow <- test
 backup <- tel.fixr30

@@ -11,3 +11,4 @@ scripts/analyses
 .Rhistory
 *.Rmd
 figures/drafts/
+.Rproj.user
