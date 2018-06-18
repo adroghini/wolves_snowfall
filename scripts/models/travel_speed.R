@@ -4,7 +4,7 @@ library(nlme)
 library(MuMIn)
 
 # Create data for Model 1: travel speed
-test_travel <- snowfall_telem %>% 
+speed.df <- snowfall_telem %>% 
   filter(Behavior==1 & !is.na(SnowDepth)) %>% 
   dplyr::select(Device,speed, time_of_day,SnowDepth,snowfall_category)
 
@@ -14,63 +14,73 @@ test_travel <- snowfall_telem %>%
 
 # Create ordered observation number
 # To mimic dotchart
-test_travel$obs_no <- 1:nrow(test_travel)
+speed.df$obs_no <- 1:nrow(speed.df)
 ## Travel speed
-plot(test_travel$obs_no~test_travel$speed) 
-range(test_travel$speed) 
-# Likely requires strong transformation
-plot(test_travel$obs_no~log10(test_travel$speed)) 
+plot(speed.df$obs_no~speed.df$speed) 
+range(speed.df$speed) 
+# Requires strong transformation
+plot(speed.df$obs_no~log10(speed.df$speed)) 
 # A million times better
 
 ## Snow depth
-plot(test_travel$obs_no~test_travel$SnowDepth) 
+plot(speed.df$obs_no~speed.df$SnowDepth) 
 # Looks ok
 
 # Create column for log.speed
 # Code factors for categorical variables
-test_travel$log.speed <- log10(test_travel$speed)
-test_travel$depth.exp <- (test_travel$SnowDepth)^2
-test_travel$Device <- as.factor(test_travel$Device)
-test_travel$snowfall_category <- as.factor(test_travel$snowfall_category)
-test_travel$time_of_day <- as.factor(test_travel$time_of_day)
+# Set day_of_snowfall as reference category
+speed.df$log.speed <- log10(speed.df$speed)
+speed.df$Device <- as.factor(speed.df$Device)
+speed.df$snowfall_category <- as.factor(speed.df$snowfall_category)
+speed.df$time_of_day <- as.factor(speed.df$time_of_day)
 
-test_travel$snowfall_category <- 
-  relevel(test_travel$snowfall_category, 
+speed.df$snowfall_category <- 
+  relevel(speed.df$snowfall_category, 
           ref="day_of_snowfall")
 
 # Apply linear model
 # Use information theoretic approach (AIC)
 options(na.action = "na.fail") # Prevent fitting models to different datasets
 
-# Define full model
-
+###################################
 # See if random effects are warranted
 
+# Full model: explains travel speed as a function of 
+# 1. snowfall category, 2. time of day, and 3. snow depth
+# Scale snow depth - values of snow depth >> log speed
+# Because speed is logged, snow depth response (if significant) is exponential
+
 # Fixed effects only
-AIC(gls(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), data=test_travel, method="ML"))
+AIC(gls(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+        data=speed.df, method="ML"))
 
 # Random intercept only
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 | Device, data=test_travel, method="ML"))
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+        random = ~ 1 | Device, data=speed.df, method="ML"))
 
 # Random slope by time_of_day
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 + time_of_day | Device, data=test_travel, method="ML"))
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+        random = ~ 1 + time_of_day | Device, data=speed.df, method="ML"))
 
 # Random slope by snow depth
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 + scale(SnowDepth) | Device, data=test_travel, method="ML"))
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+        random = ~ 1 + scale(SnowDepth) | Device, data=speed.df, method="ML"))
 
 # Random slope by snowfall_category does not converge
+AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+        random = ~ 1 + snowfall_category | Device, data=speed.df, method="ML"))
 
-# Run final global model
-full_model_travel <- lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), random = ~ 1 + time_of_day | Device, data=test_travel, method="ML")
-
-# Model summary
-summary(full_model_travel)
+###################################
+# Final global model
+# Includes random slope for Device as a function of time_of_day
+full_mod_travel <- lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+                         random = ~ 1 + time_of_day | Device, data=speed.df, method="ML")
 
 # Check residuals
-plot(full_model_travel)
+plot(full_mod_travel)
 
 # Model selection
-all_models <- dredge(full_model_travel, beta="none", 
+all_models <- dredge(full_mod_travel, beta="none", 
                      evaluate = TRUE, rank = "AIC")
 
 # Clean up model selection table
@@ -83,10 +93,23 @@ all_models <- all_models %>%
          weight = round(weight,2)) %>% 
   rename(K = df) 
 
+### Need to add null model results ###
+
 # Export model selection table
 write.csv(all_models,'data/outputs/travel_speed_model_select.csv',
           row.names=FALSE)
 
+# Obtain summary for models with highest weight of evidence
+top.mod1 <-lme(log.speed ~ snowfall_category + time_of_day, 
+                 random = ~ 1 + time_of_day | Device, data=speed.df, method="REML")
+top.mod2 <-lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
+               random = ~ 1 + time_of_day | Device, data=speed.df, method="REML")
+
+summary(top.mod1)
+summary(top.mod2) # Confidence interval for SnowDepth variable overlaps zero.
+
+
+
 # Workspace clean-up
-rm(all_models,full_model_travel,test_travel)
+rm(all_models,full_mod_travel,speed.df)
 
