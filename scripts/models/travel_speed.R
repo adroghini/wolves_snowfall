@@ -1,6 +1,7 @@
 # Load required packages
 library(dplyr)
 library(nlme)
+library(lme4)
 library(MuMIn)
 
 # Create data for Model 1: travel speed
@@ -57,32 +58,29 @@ AIC(gls(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth),
         data=speed.df, method="REML"))
 
 # Random intercept only
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
-        random = ~ 1 | Device, data=speed.df, method="REML"))
+AIC(lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (1 | Device), speed.df, REML = TRUE))
 
 # Random slope by time_of_day
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
-        random = ~ 1 + time_of_day | Device, data=speed.df, method="REML"))
+AIC(lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = TRUE))
 
 # Random slope by snow depth
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
-        random = ~ 1 + scale(SnowDepth) | Device, data=speed.df, method="REML"))
+AIC(lmer(log.speed ~ snowfall_category + time_of_day 
+         + scale(SnowDepth) + (1 + scale(SnowDepth) | Device), 
+         speed.df, REML = TRUE))
 
 # Random slope by snowfall_category 
-# Does not converge
-AIC(lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
-        random = ~ 1 + snowfall_category | Device, data=speed.df, method="REML"))
+# Fails to converge when REML = FALSE
+AIC(lmer(log.speed ~ snowfall_category + time_of_day + 
+           scale(SnowDepth) + (1 + snowfall_category | Device), 
+         speed.df, REML = TRUE))
 
 ###################################
 
 # Final global model
 # Includes random slope for Device as a function of time_of_day
-# full_mod_travel <- lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), 
-                        # random = ~ 1 + time_of_day | Device, data=speed.df, method="ML")
+# full_mod_travel <- lme(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth), # random = ~ 1 + time_of_day | Device, data=speed.df, method="ML")
 
-library(lme4)
-full_mod_travel <- lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth)
-            + (time_of_day | Device), speed.df, REML = FALSE)
+full_mod_travel <- lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = FALSE)
 
 
 # Check residuals
@@ -114,12 +112,25 @@ write.csv(modelset.speed,'data/outputs/travel_speed_model_select.csv',
 # top.mod1 <-lme(log.speed ~ snowfall_category + time_of_day, 
                 # random = ~ 1 + time_of_day | Device, data=speed.df, method="ML")
 top.mod1 <- lmer(log.speed ~ snowfall_category + time_of_day
-                   + (time_of_day | Device), speed.df, REML = FALSE)
-top.mod2 <- lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth)
-                   + (time_of_day | Device), speed.df, REML = FALSE)
+                 + (1 + time_of_day | Device),
+                 speed.df,
+                 REML = FALSE)
+# top.mod2 <- lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (time_of_day | Device), speed.df, REML = FALSE)
+# Second highest model: deviance only marginally different. SnowDepth is liely a "pretending" variable (Anderson 2008)
 
-summary(top.mod1)
-summary(top.mod2) # Confidence interval for SnowDepth variable overlaps zero.
+# Backtransform coefficients for interpretation
+fixedef.mod1 <- as.data.frame(summary(top.mod1)$coefficients)
+fixedef.mod1$category <- rownames(fixedef.mod1)
+fixedef.mod1 <- fixedef.mod1 %>% 
+  rename(SE = "Std. Error") %>% 
+  select(-"t value")
+
+fixedef.mod1$BT.estimates <- 10*exp(fixedef.mod1$Estimate)
+
+#### NEED TO BOOTSTRAP CIs ####
+fixedef.mod1$ApproxSE1 <- 10*exp(fixedef.mod1$Estimate-fixedef.mod1$SE)
+fixedef.mod1$ApproxSE2 <- 10*exp(fixedef.mod1$Estimate+fixedef.mod1$SE)
+
 
 # How fast do wolves travel at night versus during the day?
 time_day_summary <- speed.df %>% 
