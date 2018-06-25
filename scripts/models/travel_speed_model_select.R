@@ -93,7 +93,8 @@ names(modelset.speed)
 # Calculate deviance (log likelihood * -2)
 modelset.speed <- modelset.speed %>% 
   mutate(AIC = round(AIC,2), delta = round(delta,2), 
-         weight = round(weight,2), Deviance = -2 * logLik) %>% 
+         weight = round(weight,2), 
+         Deviance = round((-2 * logLik),2)) %>% 
   rename(K = df) %>% 
   dplyr::select(-logLik) %>% 
   select(c(1:5,Deviance,everything()))
@@ -102,3 +103,4 @@ modelset.speed <- modelset.speed %>%
 write.csv(modelset.speed,
           'data/outputs/travel_speed_model_select.csv',
           row.names=FALSE)
+
