@@ -41,6 +41,11 @@ speed.df$snowfall_category <-
   relevel(speed.df$snowfall_category, 
           ref="day_of_snowfall")
 
+# Set reference time of day to "day" (default)
+speed.df$time_of_day <- 
+  relevel(speed.df$time_of_day, 
+          ref="day")
+
 ####### Model selection ####### 
 options(na.action = "na.fail") # Prevent fitting models to different datasets
 
@@ -54,29 +59,29 @@ options(na.action = "na.fail") # Prevent fitting models to different datasets
 
 # Fixed effects only
 # Fitting fixed effects with REML is discouraged...
-# AIC(gls(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + scale(SnowAccum), data=speed.df, method="REML"))
+# AIC(gls(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + scale(SnowAccum), data=speed.df, method="REML"))
 
 # Random intercept only
-AIC(lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (1 | Device), speed.df, REML = TRUE))
+AIC(lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + (1 | Device), speed.df, REML = TRUE))
 
 # Random slope (time_of_day) within Device
-AIC(lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = TRUE))
+AIC(lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = TRUE))
 
 # Random slope (snow depth) within Device
-AIC(lmer(log.speed ~ snowfall_category + time_of_day 
+AIC(lmer(log.speed ~ snowfall_category * time_of_day 
          + scale(SnowDepth) + (1 + scale(SnowDepth) | Device), 
          speed.df, REML = TRUE))
 
 # Random slope by snowfall_category 
 # Fails to converge when REML = FALSE
-AIC(lmer(log.speed ~ snowfall_category + time_of_day + 
+AIC(lmer(log.speed ~ snowfall_category * time_of_day + 
            scale(SnowDepth) + (1 + snowfall_category | Device), 
          speed.df, REML = TRUE))
 
 #### Global model and candidate set #### 
 # Final global model
 # Includes random slope for time_of_day within Device group
-full_mod_travel <- lmer(log.speed ~ snowfall_category + time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = FALSE)
+full_mod_travel <- lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = FALSE)
 
 # Check residuals
 plot(full_mod_travel)

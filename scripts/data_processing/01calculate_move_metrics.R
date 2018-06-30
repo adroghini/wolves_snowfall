@@ -109,13 +109,10 @@ dev.off()
 
 # Use locator() tool to estimate breakpoint
 
-# Inverse log
-# Antilog function from: http://r.789695.n4.nabble.com/Searching-for-antilog-function-td4721348.html
-antilog <- function(lx, base) {
-  lbx <- lx / log(exp(1), base = base)
-  result <- exp(lbx)
-  result
-} 
+# Read in antilog function and back-transform estimated breakpoint
+# To express in original units (m/min)
+# Inverse log function from:  http://r.789695.n4.nabble.com/Searching-for-antilog-function-td4721348.html
+source('scripts/functions/antilog_function.R')
 
 # breakpoint <- antilog(0.5,exp(1))
 breakpoint <- antilog(0.228,10)

@@ -1,9 +1,11 @@
+# Load required libraries
 library(lme4)
 library(boot)
 library(plyr)
 library(dplyr)
 
-# Obtain summary for models with highest weight of evidence
+# Obtain coefficients from models with highest weight of evidence
+# Use REML = FALSE to estimate coefficients using maximum likelihood
 top.mod1 <- lmer(log.speed ~ snowfall_category + time_of_day
                  + (1 + time_of_day | Device),
                  speed.df,
@@ -13,6 +15,7 @@ top.mod1 <- lmer(log.speed ~ snowfall_category + time_of_day
 # Second highest model: deviance only marginally different. Snow depth is likely a "pretending" variable (Anderson 2008). Discussed in Results
 
 # See results
+# Coefficients need to be back-transformed because response variable is logged
 summary(top.mod1)
 
 # Create table in which to place bootstrapped betas + CIs
@@ -40,12 +43,15 @@ for (i in 1:length(boot_par[[1]])) {
   coef.mod1$CI.high[i] <- boot_ci[[4]][5]
 }
 
-rm(i,boot_par,boot_ci)
+rm(i)
 
 # Backtransform betas and CIs for interpretation
-coef.mod1$bt.beta <- 10*exp(coef.mod1$Estimate)
-coef.mod1$bt.CIlow <- 10*exp(coef.mod1$CI.low)
-coef.mod1$bt.CIhigh <- 10*exp(coef.mod1$CI.high)
+# Using antilog_function.R
+# Inverse log function from:  http://r.789695.n4.nabble.com/Searching-for-antilog-function-td4721348.html
+source('scripts/functions/antilog_function.R')
+coef.mod1$bt.beta <- round(antilog(coef.mod1$Estimate,10),dig=3)
+coef.mod1$bt.CIlow <- round(antilog(coef.mod1$CI.low,10),dig=3)
+coef.mod1$bt.CIhigh <- round(antilog(coef.mod1$CI.high,10),dig=3)
 
 # Export final model coefficient table
 coef.mod1 <- select(coef.mod1,-c(CI.low,CI.high))
