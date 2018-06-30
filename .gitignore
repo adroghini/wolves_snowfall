@@ -12,3 +12,4 @@ scripts/analyses
 *.Rmd
 figures/drafts/
 .Rproj.user
+gis_layers/
