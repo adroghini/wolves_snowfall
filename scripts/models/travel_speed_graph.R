@@ -45,6 +45,9 @@ plot_speed <- ggplot(graph_speed,
   )
 
 file_path <- "/Users/amanda_droghini/Documents/work/archived/msc_ualberta_2013_2016/thesis/analyses/wolves_snowfall/figures/"
-ggsave(paste(file_path,"fig1_travel_speed.png",sep=""),device="jpeg",dpi=300,limitsize=TRUE,units="in",width=8.5,height=6.25)
+
+# File specifications based on PLoS ONE figure requirements:
+# http://journals.plos.org/plosone/s/figures
+ggsave(paste(file_path,"fig2_travel_speed.eps",sep=""),device="eps",dpi=300,limitsize=TRUE,units="in",width=7.5,height=5.25)
 
 rm(graph_speed,plot_speed,speed.df,top.mod1,file_path,coef.mod1,full_mod_travel)
