@@ -26,13 +26,13 @@ proportion.df$time_of_day <-
   relevel(proportion.df$time_of_day, 
           ref="day")
 
-# Start with global model
 options(na.action = "na.fail") # Prevent fitting models to different datasets
-full_mod_prop <- glmer(cbind(travel,resting) ~ time_of_day *
-                           snowfall_category + scale(SnowDepth) +
-                           (1|Device), data=proportion.df, 
-                         family=binomial)
 
+## Global model and candidate set ##
+full_mod_prop <- glmer(cbind(travel,resting) ~ time_of_day *
+                         snowfall_category + scale(SnowDepth) +
+                         (1|Device), data=proportion.df, 
+                       family=binomial)
 # Model selection
 modelset.prop <- dredge(full_mod_prop, beta="none", 
                      evaluate = TRUE, rank = "AIC")
@@ -50,6 +50,15 @@ modelset.prop <- modelset.prop %>%
 # Export model selection table
 write.csv(modelset.prop,'data/outputs/model_select_proportion.csv',
           row.names=FALSE)
+
+# Summary outputs
+# How much "time" do wolves spend travelling versus resting?
+proportion.df %>% 
+ # group_by(time_of_day) %>% 
+  group_by(time_of_day, snowfall_category) %>% 
+  summarize(count.travel = sum(travel), count.rest = sum(resting),
+            prop.travel = count.travel / (count.travel+count.rest),
+            prop.rest = count.rest / (count.travel+count.rest))
 
 # Workspace clean-up
 # rm(modelset.prop, proportion.df, full_mod_prop)

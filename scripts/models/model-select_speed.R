@@ -65,7 +65,8 @@ options(na.action = "na.fail") # Prevent fitting models to different datasets
 AIC(lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + (1 | Device), speed.df, REML = TRUE))
 
 # Random slope (time_of_day) within Device
-AIC(lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = TRUE))
+AIC(lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) 
+         + (1 + time_of_day | Device), speed.df, REML = TRUE))
 
 # Random slope (snow depth) within Device
 AIC(lmer(log.speed ~ snowfall_category * time_of_day 
