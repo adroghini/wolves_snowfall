@@ -31,6 +31,16 @@ mean.position <- tel.fixr30 %>%
   group_by(Device,CamDate) %>% 
   summarise(mean.x=mean(Easting),mean.y=mean(Northing))
 
+# Append pack ID
+pack_to_id <- tel.fixr30 %>% 
+  distinct(Device, .keep_all = TRUE) %>% 
+  select(Device, Pack)
+
+pack_to_id$Device <- as.factor(pack_to_id$Device)
+mean_position$Device <- as.factor(mean_position$Device)
+
+mean_position <- left_join(mean_position,pack_to_id)
+rm(pack_to_id)
 # write.csv(mean.position,'data/outputs/mean_position.csv',row.names=FALSE)
 
 # Extract coordinates for cameras
