@@ -81,13 +81,14 @@ AIC(lmer(log.speed ~ snowfall_category * time_of_day +
 #### Global model and candidate set #### 
 # Final global model
 # Includes random slope for time_of_day within Device group
-full_mod_travel <- lmer(log.speed ~ snowfall_category * time_of_day + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = FALSE)
+full_mod_travel <- lmer(log.speed ~ snowfall_category * time_of_day 
+                        + scale(SnowDepth) + (1 + time_of_day | Device), speed.df, REML = FALSE)
 
 # Check residuals
 plot(full_mod_travel)
 
 # Create set of candidate models
-# Jutification of MuMIn's dredge: It is biologically reasonable to expect every variable to occur singly or in combination
+# Use dredge: biologically reasonable to expect every variable to occur singly or in combination
 modelset.speed <- dredge(full_mod_travel, beta="none", 
                          evaluate = TRUE, rank = "AIC")
 
@@ -106,6 +107,6 @@ modelset.speed <- modelset.speed %>%
 
 # Export model selection table
 write.csv(modelset.speed,
-          'data/outputs/travel_speed_model_select.csv',
+          'data/outputs/model_select_speed.csv',
           row.names=FALSE)
 

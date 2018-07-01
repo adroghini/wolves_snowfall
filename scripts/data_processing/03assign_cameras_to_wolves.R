@@ -41,7 +41,7 @@ mean_position$Device <- as.factor(mean_position$Device)
 
 mean_position <- left_join(mean_position,pack_to_id)
 rm(pack_to_id)
-# write.csv(mean.position,'data/outputs/mean_position.csv',row.names=FALSE)
+write.csv(mean.position,'data/outputs/wolf_centroid_position.csv',row.names=FALSE)
 
 # Extract coordinates for cameras
 cam.locations <- cams.deploy %>% 
@@ -84,7 +84,7 @@ write.csv(cam.locations,'data/outputs/cam_locations.csv',row.names=FALSE)
 # Export 'test' file
 write.csv(test,'data/outputs/test_distances.csv',row.names=FALSE)
 
-# Distances check out
+# Distances work out
 # Cue: https://www.youtube.com/watch?v=1s1LJbzRulM
 
 # For each wolf & date, select minimum distance
