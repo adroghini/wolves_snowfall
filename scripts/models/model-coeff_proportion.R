@@ -25,9 +25,17 @@ coef.mod1$CI.high <- NA
 
 # Bootstrap confidence intervals
 # With 5000 simulations
-boot_par <- bootMer(x=top.mod1,FUN=fixef,nsim=5000)
 
-boot_par[[1]]
+# Define function
+boot.fun <- function(fit) {
+  return(fixef(fit))
+}
+
+boot_par <- bootMer(x=top.mod1,FUN=boot.fun,nsim=5000)
+# Save results
+saveRDS(boot_par,file='data/outputs/bootstrap_prop_model.rds')
+
+# boot_par[[1]]
 for (i in 1:length(boot_par[[1]])) {
   boot_ci <- (boot.ci(boot_par,type="perc",conf = 0.95,index=i))
   # variable <- as.data.frame(boot_ci[[2]])
@@ -39,13 +47,6 @@ for (i in 1:length(boot_par[[1]])) {
 
 rm(i)
 
-# Backtransform betas and CIs for interpretation
-# Using antilog_function.R
-# Inverse log function from:  http://r.789695.n4.nabble.com/Searching-for-antilog-function-td4721348.html
-source('scripts/functions/antilog_function.R')
-coef.mod1$bt.beta <- round(antilog(coef.mod1$Estimate,10),dig=3)
-coef.mod1$bt.CIlow <- round(antilog(coef.mod1$CI.low,10),dig=3)
-coef.mod1$bt.CIhigh <- round(antilog(coef.mod1$CI.high,10),dig=3)
 
 # Export final model coefficient table
 coef.mod1 <- select(coef.mod1,-c(CI.low,CI.high))
