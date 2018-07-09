@@ -6,12 +6,11 @@ library(dplyr)
 
 # Obtain coefficients for top-ranking model
 # Use REML = FALSE to estimate coefficients using maximum likelihood
-top.mod1 <- lmer(log.speed ~ snowfall_category + time_of_day
-                 + (1 + time_of_day | Device),
-                 speed.df,
-                 REML = FALSE)
+top.mod1 <- glmer(cbind(travel,resting) ~ time_of_day *
+                                     snowfall_category + 
+                    (1|Device), data=proportion.df, 
+                                   family=binomial)
 
-# Coefficients need to be back-transformed because response variable is logged
 summary(top.mod1)
 
 # Create table in which to place bootstrapped betas + CIs

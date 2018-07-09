@@ -42,10 +42,9 @@ modelset.prop <- dredge(full_mod_prop, beta="none",
 modelset.prop <- modelset.prop %>% 
   mutate(AIC = round(AIC,2), delta = round(delta,2), 
          weight = round(weight,2), 
-         Deviance = round((-2 * logLik),2)) %>% 
+         logLik = round(logLik,2)) %>% 
   rename(K = df) %>% 
-  dplyr::select(-logLik) %>% 
-  select(c(1:5,Deviance,everything()))
+  select(c(1:5,logLik,everything()))
 
 # Export model selection table
 write.csv(modelset.prop,'data/outputs/model_select_proportion.csv',

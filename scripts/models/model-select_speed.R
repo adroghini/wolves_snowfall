@@ -97,14 +97,12 @@ modelset.speed <- dredge(full_mod_travel, beta="none",
 names(modelset.speed)
 
 # Round to two decimal places
-# Calculate deviance (log likelihood * -2)
 modelset.speed <- modelset.speed %>% 
   mutate(AIC = round(AIC,2), delta = round(delta,2), 
-         weight = round(weight,2), 
-         Deviance = round((-2 * logLik),2)) %>% 
+         weight = round(weight,2),
+         logLik = round(logLik,2)) %>% 
   rename(K = df) %>% 
-  dplyr::select(-logLik) %>% 
-  select(c(1:5,Deviance,everything()))
+  select(c(1:5,logLik,everything()))
 
 # Export model selection table
 write.csv(modelset.speed,
