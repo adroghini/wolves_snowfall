@@ -25,6 +25,7 @@ coef.mod1$CI.high <- NA
 
 # Bootstrap confidence intervals
 # With 5000 simulations
+# Note: This takes a *very* long time to run (on the order of several days)
 
 # Define function
 boot.fun <- function(fit) {
@@ -47,9 +48,7 @@ for (i in 1:length(boot_par[[1]])) {
 
 rm(i)
 
-
 # Export final model coefficient table
-coef.mod1 <- select(coef.mod1,-c(CI.low,CI.high))
 write.csv(coef.mod1,
-          'data/outputs/travel_speed_final_model.csv',
+          'data/outputs/prop_travel_final_model.csv',
           row.names=FALSE)

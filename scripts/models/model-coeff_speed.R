@@ -49,7 +49,7 @@ coef.mod1$bt.CIlow <- round(antilog(coef.mod1$CI.low,10),dig=3)
 coef.mod1$bt.CIhigh <- round(antilog(coef.mod1$CI.high,10),dig=3)
 
 # Export final model coefficient table
-coef.mod1 <- select(coef.mod1,-c(CI.low,CI.high))
+coef.mod1 <- select(coef.mod1,-c(CI.low,CI.high)) # Present only backtransformed CIs
 write.csv(coef.mod1,
           'data/outputs/travel_speed_final_model.csv',
           row.names=FALSE)
