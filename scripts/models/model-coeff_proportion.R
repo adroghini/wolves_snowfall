@@ -48,7 +48,14 @@ for (i in 1:length(boot_par[[1]])) {
 
 rm(i)
 
+# Coefficients are on the logit scale
+# Backtransform betas and CIs for interpretation
+coef.mod1$bt.beta <- round(exp(coef.mod1$Estimate),dig=3)
+coef.mod1$bt.CIlow <- round(exp(coef.mod1$CI.low),dig=3)
+coef.mod1$bt.CIhigh <- round(exp(coef.mod1$CI.high),dig=3)
+
 # Export final model coefficient table
-write.csv(coef.mod1,
+coef.table <- select(coef.mod1,-c(CI.low,CI.high)) # Present only backtransformed CIs
+write.csv(coef.table,
           'data/outputs/prop_travel_final_model.csv',
           row.names=FALSE)

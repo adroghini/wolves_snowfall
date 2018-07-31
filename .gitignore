@@ -1,15 +1,27 @@
 # ignore RStudio project file
-# ignore all files in data/ directory
-# data files are not ready to be shared as we are still working on analyses related to this project
-# for questions or collaborations, please contact Amanda Droghini at droghini@ualberta.ca
-
-data/
 .Rproj.user/
 *.Rproj
-scripts/analyses
 .RData
 .Rhistory
 *.Rmd
-figures/drafts/
 .Rproj.user
+
+# ignore files in data/ directory
+# except for camera data
+!*/data/cameras*
+
+# telemetry data available on Movebank (https://www.movebank.org/)
+# as part of the "ABoVE: Boutin Alberta Grey Wolf" study (study ID #492444603).
+data/
+
+# additional folders to ignore
+# old scripts - have since been rewritten
+scripts/analyses
+# drafts to send to collaborators
+figures/drafts/
+# GIS layers used to generate Fig 1 study area map
+# these layers are available from the following sources
+# 1. Linear features from the Alberta Biodiversity Monitoring Institute (http://abmi.ca/home/data-analytics/da-top/da-product-overview/GIS-Land-Surface/HF-inventory.html)
+# 2. Major rivers from Alberta Environment and Parks (Government of Alberta) (https://maps.alberta.ca/genesis/rest/services/Base_Water_Feature/Latest/MapServer)
+# 3. Outlines of Canadian provinces and U.S./Canada boundaries from Natural Earth (https://www.naturalearthdata.com/downloads/10m-cultural-vectors/)
 gis_layers/

@@ -47,7 +47,7 @@ modelset.prop <- modelset.prop %>%
   select(c(1:5,logLik,everything()))
 
 # Export model selection table
-write.csv(modelset.prop,'data/outputs/model_select_proportion.csv',
+write.csv(modelset.prop,'data/outputs/prop_travel_model_select.csv',
           row.names=FALSE)
 
 # Summary outputs

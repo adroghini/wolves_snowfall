@@ -23,7 +23,7 @@ graph_speed$snowfall_order <- factor(
 )
 
 # Plot summary graph
-plot_speed <- ggplot(graph_speed,
+ggplot(graph_speed,
        aes(
          x = as.factor(snowfall_order),
          y = mean.speed,
@@ -32,7 +32,7 @@ plot_speed <- ggplot(graph_speed,
   geom_point(size=2) +
   geom_errorbar(aes(ymin = mean.speed - st.err, ymax = mean.speed + st.err),
                 width = 0.12) +
-  scale_x_discrete(name = "Time since snowfall event") +
+  scale_x_discrete(name = "Time since snowfall event (days)") +
   scale_y_continuous(lim = c(16, 31.5),
                      breaks = seq(16, 32, 3),
                      name = "Average travel speed (m/min)") +
@@ -40,7 +40,8 @@ plot_speed <- ggplot(graph_speed,
   theme_classic() +
   theme(
     legend.position = "top",
-    legend.title = element_blank(),
+    legend.text = element_text(size=12),
+    text = element_text(size=12),
     panel.grid.major = element_line(colour = "grey90")
   )
 
@@ -50,4 +51,4 @@ file_path <- "/Users/amanda_droghini/Documents/work/archived/msc_ualberta_2013_2
 # http://journals.plos.org/plosone/s/figures
 ggsave(paste(file_path,"fig2_travel_speed.eps",sep=""),device="eps",dpi=300,limitsize=TRUE,units="in",width=7.5,height=5.25)
 
-rm(graph_speed,plot_speed,speed.df,top.mod1,file_path,coef.mod1,full_mod_travel)
+rm(graph_speed,plot_speed,speed.df,file_path)
