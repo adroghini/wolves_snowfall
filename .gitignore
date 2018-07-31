@@ -8,11 +8,10 @@
 
 # ignore files in data/ directory
 # except for camera data
-!*/data/cameras*
-
 # telemetry data available on Movebank (https://www.movebank.org/)
 # as part of the "ABoVE: Boutin Alberta Grey Wolf" study (study ID #492444603).
 data/
+!data/cameras*
 
 # additional folders to ignore
 # old scripts - have since been rewritten
