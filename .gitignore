@@ -10,14 +10,14 @@
 # except for camera data
 # telemetry data available on Movebank (https://www.movebank.org/)
 # as part of the "ABoVE: Boutin Alberta Grey Wolf" study (study ID #492444603).
-data/
-!*/data/cameras/*
+data/**
+!**/data/cameras/
+!**/data/cameras/*.csv
 
-# additional folders to ignore
-# old scripts - have since been rewritten
-scripts/analyses
-# drafts to send to collaborators
+# ignore draft plots sent to collaborators
 figures/drafts/
+
+# ignore GIS layers
 # GIS layers used to generate Fig 1 study area map
 # these layers are available from the following sources
 # 1. Linear features from the Alberta Biodiversity Monitoring Institute (http://abmi.ca/home/data-analytics/da-top/da-product-overview/GIS-Land-Surface/HF-inventory.html)
