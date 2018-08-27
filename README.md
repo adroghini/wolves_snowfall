@@ -19,9 +19,7 @@ The following folder structure must be in place for the scripts to run properly:
 
 ..\figures [for output of final plots]
 
-..\scripts [can be in any directory; no dependencies]
-
-## Access to raw data
+# Access to raw data
 Data collected from our remote cameras are available in the \data folder. Telemetry data available on Movebank (https://www.movebank.org/) as part of the "ABoVE: Boutin Alberta Grey Wolf" study (study ID #492444603). If you are interested in using our data or collaborating with us, please contact Amanda Droghini: droghini (at) ualberta.ca.
 
 # Acknowledgements
